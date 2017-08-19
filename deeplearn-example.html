@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>deeplearn</title>
+  <script src="./deeplearn.js"></script>
+  <script src="./complementaryColorModel_Example.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    //******* 4 创建训练数据 ********************************************************
+    const complementaryColorModel = new ComplementaryColorModel();
+    let step = 0,
+      maxStep = 1000;
+    complementaryColorModel.setupSessionAndTrainingData(20);
+
+    trainAndMaybeRender();
+
+    function trainAndMaybeRender() {
+      if (step > maxStep) {
+        console.log('done~~~~~~');
+        return;
+      };
+
+      requestAnimationFrame(trainAndMaybeRender);
+      // We only fetch the cost every 5 steps because doing so requires a transfer
+      // of data from the GPU.
+      const localStepsToRun = 5;
+      let cost;
+      for (let i = 0; i < localStepsToRun; i++) {
+        cost = complementaryColorModel.train1Batch(i === localStepsToRun - 1);
+        step++;
+      };
+
+      // Visualize the predicted color.
+      var originColor = [generateRandomChannelValue(), generateRandomChannelValue(), generateRandomChannelValue()];
+      const predictedColor = complementaryColorModel.predict(originColor);
+
+      // Print data to console so the user can inspect.
+      console.log('step', step - 1, 'cost', cost);
+      console.log('%c originColor', 'background:rgb(' + originColor.toString() + ')');
+      console.log('%c predictedColor ', 'background:rgb(' + predictedColor.toString() + ')');
+      console.log('%c computeComplementaryColor ', 'background:rgb(' + computeComplementaryColor(originColor).toString() + ')');
+
+    };
+  </script>
+
+</body>
+
+</html>
